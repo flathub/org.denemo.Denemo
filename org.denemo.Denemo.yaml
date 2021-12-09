@@ -1,15 +1,11 @@
 ---
 app-id: org.denemo.Denemo
 runtime: org.freedesktop.Platform
-runtime-version: '20.08'
+runtime-version: '21.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.texlive
 command: denemo
-rename-appdata-file: denemo.appdata.xml
-rename-desktop-file: denemo.desktop
-rename-icon: denemo
-copy-icon: true
 finish-args:
   # Display
   - --share=ipc
@@ -133,8 +129,8 @@ modules:
       - --disable-documentation
     sources:
       - type: archive
-        url: https://lilypond.org/download/sources/v2.22/lilypond-2.22.0.tar.gz
-        sha256: 64ddd03171d247adc243e01a3be3ec2610d97c62b893c253ad02ac50694b0f4e
+        url: https://lilypond.org/download/sources/v2.22/lilypond-2.22.2.tar.gz
+        sha256: dde90854fa7de1012f4e1304a68617aea9ab322932ec0ce76984f60d26aa23be
       - type: shell
         commands:
           - cp -p /usr/share/automake-*/config.{sub,guess} config/
@@ -322,12 +318,12 @@ modules:
   - name: denemo
     sources:
       - type: archive
-        url: https://ftp.gnu.org/gnu/denemo/denemo-2.5.0.tar.gz
-        sha256: 07a19b04bfe8ff3d1e993f88c3a5ef5a602c242988c12182c95d439210f27c16
+        url: http://ftp.gnu.org/gnu/denemo/denemo-2.6.0.tar.gz
+        sha256: 4be5970c69847f97f1f876275c9744e5034e7c983b12a1045fb20c236494b55d
+      # For a possible alternative, see https://github.com/flathub/org.freedesktop.appstream.cli/issues/1
       - type: patch
-        path: patches/denemo-Fix-missing-screenshots.patch
-      - type: patch
-        path: patches/denemo-Add-tags-to-pass-Flathub-appstream-validation.patch
+        path: patches/denemo-metainfo-add-2.6.0-release.patch
     post-install:
-      # flatpak expects the icon to be under /app/share/icons
-      - mv ${FLATPAK_DEST}/share/pixmaps/denemo.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/denemo.png
+      # Flatpak expects the icon to be under /app/share/icons
+      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/org.denemo.Denemo.png
+
