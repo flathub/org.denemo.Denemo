@@ -258,6 +258,7 @@ modules:
         sha256: da8878ff374d12392eecf87e96bad8711b8e76a154c25a571dd8614d1af80de8
 
   - name: vamp-plugin-sdk
+    no-parallel-make: true
     sources:
       - type: archive
         # Official site currently fails with ssl error, use a mirror
