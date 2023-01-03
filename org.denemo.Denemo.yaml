@@ -1,7 +1,7 @@
 ---
 app-id: org.denemo.Denemo
 runtime: org.freedesktop.Platform
-runtime-version: '21.08'
+runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.texlive
@@ -15,6 +15,9 @@ finish-args:
   # Folder access
   - --filesystem=home
   - --filesystem=xdg-music
+  # Settings for point-and-click. Disabled, because Denemo does not support dbus.
+  # - --filesystem=/tmp   # textedit links point to .ly files in /tmp
+  # - --talk-name=org.gnome.evince.Daemon  # Evince internal synctex requires D-Bus
   # Needed for PortAudio/MIDI
   - --device=all
   # Needed for note playpack
@@ -33,6 +36,8 @@ modules:
           - type: archive
             url: https://www.hboehm.info/gc/gc_source/gc-8.0.6.tar.gz
             sha256: 3b4914abc9fa76593596773e4da671d7ed4d5390e3d46fbf2e5f155e121bea11
+        cleanup:
+          - /include
     buildsystem: autotools
     config-opts:
       - --without-threads
@@ -46,7 +51,9 @@ modules:
         path: patches/guile2-never-recompile.patch
     cleanup:
       - /include
+      - /lib/pkgconfig
       - /share/aclocal
+      - /share/info
       - /share/man
 
   # Fontforge build dependency
@@ -144,13 +151,13 @@ modules:
   - name: aubio
     buildsystem: simple
     build-commands:
-      - ./waf configure --prefix=/app --libdir=/app/lib
+      - ./waf configure --prefix=/app --libdir=/app/lib --disable-avcodec
       - ./waf build -j $FLATPAK_BUILDER_N_JOBS
       - ./waf install
     sources:
       - type: archive
-        url: https://aubio.org/pub/aubio-0.4.7.tar.bz2
-        sha256: cbed4afec5ab3a1a6300c7e3af0a1369379aa94259f5e701a8ca905cdd9fa041
+        url: http://aubio.org/pub/aubio-0.4.9.tar.bz2
+        sha256: d48282ae4dab83b3dc94c16cf011bcb63835c1c02b515490e1883049c3d1f3da
     cleanup:
       - /bin
       - /include
@@ -164,22 +171,12 @@ modules:
       - --enable-introspection=yes
     cleanup:
       - /include
+      - /lib/pkgconfig
+      - /share/gtk-doc
     sources:
       - type: archive
         url: https://download.gnome.org/sources/gtksourceview/3.24/gtksourceview-3.24.11.tar.xz
         sha256: 691b074a37b2a307f7f48edc5b8c7afa7301709be56378ccf9cc9735909077fd
-
-  - name: Boost
-    buildsystem: simple
-    build-commands:
-      - ./bootstrap.sh --prefix=/app
-      - ./b2 install --build-type=complete link=shared --layout=versioned runtime-link=shared cxxflags="$CXXFLAGS" linkflags="$LDFLAGS" -j $FLATPAK_BUILDER_N_JOBS
-    cleanup:
-      - /include
-    sources:
-      - type: archive
-        url: https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.bz2
-        sha256: f0397ba6e982c4450f27bf32a2a83292aba035b827a5623a14636ea583318c41
 
   - name: poppler-data
     no-autogen: true
@@ -187,38 +184,43 @@ modules:
       - prefix=/app
     sources:
       - type: archive
-        url: https://poppler.freedesktop.org/poppler-data-0.4.10.tar.gz
-        sha256: 6e2fcef66ec8c44625f94292ccf8af9f1d918b410d5aa69c274ce67387967b30
+        url: https://poppler.freedesktop.org/poppler-data-0.4.11.tar.gz
+        sha256: 2cec05cd1bb03af98a8b06a1e22f6e6e1a65b1e2f3816cb3069bb0874825f08c
+    cleanup:
+      - /share/pkgconfig
 
   - name: poppler
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_INSTALL_LIBDIR=/app/lib
       - -DCMAKE_INSTALL_INCLUDEDIR=/app/include
+      - -DENABLE_BOOST=OFF
       - -DENABLE_LIBOPENJPEG=none
     cleanup:
       - /bin
       - /include
+      - /lib/pkgconfig
+      - /share/man
       - /share/pkgconfig
     sources:
       - type: archive
-        url: https://poppler.freedesktop.org/poppler-21.07.0.tar.xz
-        sha256: e26ab29f68065de4d6562f0a3e2b5435a83ca92be573b99a1c81998fa286a4d4
+        url: https://poppler.freedesktop.org/poppler-22.08.0.tar.xz
+        sha256: b493328721402f25cb7523f9cdc2f7d7c59f45ad999bde75c63c90604db0f20b
 
   - name: evince
     buildsystem: meson
     config-opts:
       - -Dcomics=disabled
-      - -Dnautilus=false
-      - -Dviewer=false
-      - -Dpreviewer=false
-      - -Ddbus=false
-      #- -Dbrowser-plugin=false
-      - -Dthumbnail_cache=disabled
+      # - -Ddbus=true # true by default
       - -Dgtk_doc=false
-      - -Duser_doc=false
+      - -Dinternal_synctex=true
       - -Dintrospection=true
+      - -Dnautilus=false
+      - -Dpreviewer=false
       - -Dsystemduserunitdir=no
+      - -Dthumbnail_cache=disabled
+      - -Duser_doc=false
+      - -Dviewer=false
     cleanup:
       - /include
       - /lib/pkgconfig
@@ -230,36 +232,34 @@ modules:
       - /share/metainfo
     sources:
       - type: archive
-        url: https://download.gnome.org/sources/evince/40/evince-40.4.tar.xz
-        sha256: 33420500e0e060f178a435063197d42dae7b67e39cc437a96510a33ddf7e95fb
+        url: https://download.gnome.org/sources/evince/43/evince-43.1.tar.xz
+        sha256: 6d75ca62b73bfbb600f718a098103dc6b813f9050b9594be929e29b4589d2335
       - type: shell
         commands:
           # Remove libhandy dep, not needed with -Dviewer=false
           - sed -i '/hdy_dep/d' meson.build
           # Remove adwaita-icon-theme support, not needed with -Dviewer=false
           - sed -i '/adwaita_icon_them/d' meson.build
-          # Force evince to use internal_synctex (make it no find the external one)
-          - sed -i 's/1.19/8.88/g' meson.build
 
   - name: fluidsynth
     buildsystem: cmake-ninja
     config-opts:
-      - -DLIB_SUFFIX=
       - -DCMAKE_BUILD_TYPE=Release
     cleanup:
       - /include
+      - /lib/pkgconfig
       - /share/man
     sources:
       - type: archive
-        url: https://github.com/FluidSynth/fluidsynth/archive/v1.1.11.tar.gz
-        sha256: da8878ff374d12392eecf87e96bad8711b8e76a154c25a571dd8614d1af80de8
+        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.3.1.tar.gz
+        sha256: d734e4cf488be763cf123e5976f3154f0094815093eecdf71e0e9ae148431883
 
   - name: vamp-plugin-sdk
     no-parallel-make: true
     sources:
       - type: archive
         # Official site currently fails with ssl error, use a mirror
-        #url: https://code.soundsoftware.ac.uk/attachments/download/2450/vamp-plugin-sdk-2.8.0.tar.gz
+        # url: https://code.soundsoftware.ac.uk/attachments/download/2450/vamp-plugin-sdk-2.8.0.tar.gz
         url: https://mirror.sobukus.de/files/src/vamp-plugin-sdk/vamp-plugin-sdk-2.8.0.tar.gz
         sha256: dcc96ae894795822398789f251c2c7effa602fc60e9dd6c7a5c5d2e7a513526c
     post-install:
@@ -284,6 +284,7 @@ modules:
       - install -Dm644 -t /app/share/licenses/rubberband COPYING
     cleanup:
       - /include
+      - /lib/pkgconfig
       - /share/ladspa
       - /share/licenses
       - "*.a"
@@ -292,6 +293,8 @@ modules:
     buildsystem: cmake-ninja
     cleanup:
       - /include
+      - /lib/pkgconfig
+      - /share/doc
     sources:
       - type: archive
         url: http://files.portaudio.com/archives/pa_stable_v190700_20210406.tgz
