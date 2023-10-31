@@ -1,7 +1,7 @@
 ---
 app-id: org.denemo.Denemo
 runtime: org.freedesktop.Platform
-runtime-version: '22.08'
+runtime-version: '23.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.texlive
@@ -45,8 +45,11 @@ modules:
       - -DREAL_TYPE=double
     sources:
       - type: archive
-        url: https://github.com/fontforge/fontforge/archive/20200314.tar.gz
-        sha256: ad0eb017379c6f7489aa8e2d7c160f19140d1ac6351f20df1d9857d9428efcf2
+        url: https://github.com/fontforge/fontforge/archive/refs/tags/20230101.tar.gz
+        sha256: ab0c4be41be15ce46a1be1482430d8e15201846269de89df67db32c7de4343f1
+      # From https://src.fedoraproject.org/rpms/fontforge/blob/rawhide/f/0001-Fix-errors-in-French-and-Italian-translations.patch
+      - type: patch
+        path: patches/fontforge-translation-errors.patch
     cleanup:
       - "*"
 
@@ -169,6 +172,9 @@ modules:
       - type: archive
         url: http://aubio.org/pub/aubio-0.4.9.tar.bz2
         sha256: d48282ae4dab83b3dc94c16cf011bcb63835c1c02b515490e1883049c3d1f3da
+      # From https://src.fedoraproject.org/rpms/aubio/tree/f39
+      - type: patch
+        path: patches/aubio-python.patch
     cleanup:
       - /bin
       - /include
@@ -243,8 +249,8 @@ modules:
       - /share/metainfo
     sources:
       - type: archive
-        url: https://download.gnome.org/sources/evince/43/evince-43.1.tar.xz
-        sha256: 6d75ca62b73bfbb600f718a098103dc6b813f9050b9594be929e29b4589d2335
+        url: https://download.gnome.org/sources/evince/44/evince-44.3.tar.xz
+        sha256: 3b8ba1581a47a6e9f57f6b6aa08f0fb67549c60121aa24e31140e93947b83622
       - type: shell
         commands:
           # Remove libhandy dep, not needed with -Dviewer=false
@@ -262,17 +268,15 @@ modules:
       - /share/man
     sources:
       - type: archive
-        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.3.1.tar.gz
-        sha256: d734e4cf488be763cf123e5976f3154f0094815093eecdf71e0e9ae148431883
+        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.3.4.tar.gz
+        sha256: 1529ef5bc3b9ef3adc2a7964505912f7305103e269e50cc0316f500b22053ac9
 
   - name: vamp-plugin-sdk
     no-parallel-make: true
     sources:
       - type: archive
-        # Official site currently fails with ssl error, use a mirror
-        # url: https://code.soundsoftware.ac.uk/attachments/download/2450/vamp-plugin-sdk-2.8.0.tar.gz
-        url: https://mirror.sobukus.de/files/src/vamp-plugin-sdk/vamp-plugin-sdk-2.8.0.tar.gz
-        sha256: dcc96ae894795822398789f251c2c7effa602fc60e9dd6c7a5c5d2e7a513526c
+        url: https://code.soundsoftware.ac.uk/attachments/download/2691/vamp-plugin-sdk-2.10.0.tar.gz
+        sha256: aeaf3762a44b148cebb10cde82f577317ffc9df2720e5445c3df85f3739ff75f
     post-install:
       - install -Dm644 -t /app/share/licenses/vamp-plugin-sdk COPYING
     cleanup:
@@ -283,16 +287,11 @@ modules:
       - "*.a"
 
   - name: rubberband
-    build-options:
-      env:
-        Vamp_CFLAGS: " "
-        Vamp_LIBS: " "
+    buildsystem: meson
     sources:
       - type: archive
-        url: https://code.breakfastquay.com/attachments/download/34/rubberband-1.8.1.tar.bz2
-        sha256: ff0c63b0b5ce41f937a8a3bc560f27918c5fe0b90c6bc1cb70829b86ada82b75
-    post-install:
-      - install -Dm644 -t /app/share/licenses/rubberband COPYING
+        url: https://breakfastquay.com/files/releases/rubberband-3.3.0.tar.bz2
+        sha256: d9ef89e2b8ef9f85b13ac3c2faec30e20acf2c9f3a9c8c45ce637f2bc95e576c
     cleanup:
       - /include
       - /lib/pkgconfig
@@ -319,10 +318,8 @@ modules:
       - -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/app/bin
     sources:
       - type: archive
-        url: https://downloads.sourceforge.net/project/portmedia/portmidi/217/portmidi-src-217.zip
-        sha256: 08e9a892bd80bdb1115213fb72dc29a7bf2ff108b378180586aa65f3cfd42e0f
-      - type: patch
-        path: patches/portmidi-no-java.patch
+        url: https://github.com/PortMidi/portmidi/archive/refs/tags/v2.0.4.tar.gz
+        sha256: 64893e823ae146cabd3ad7f9a9a9c5332746abe7847c557b99b2577afa8a607c
     cleanup:
       - /bin
       - /include
