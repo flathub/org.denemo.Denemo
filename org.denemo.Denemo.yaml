@@ -27,35 +27,6 @@ finish-args:
   # required to find texlive binaries
   - --env=PATH=/app/texlive/bin/x86_64-linux:/app/texlive/bin/aarch64-linux:/app/bin:/usr/bin
 modules:
-  - name: guile
-    modules:
-      - name: gc
-        config-opts:
-          - --disable-docs
-        sources:
-          - type: archive
-            url: https://www.hboehm.info/gc/gc_source/gc-8.0.6.tar.gz
-            sha256: 3b4914abc9fa76593596773e4da671d7ed4d5390e3d46fbf2e5f155e121bea11
-        cleanup:
-          - /include
-    buildsystem: autotools
-    config-opts:
-      - --without-threads
-      - --disable-networking
-      - --disable-error-on-warning
-    sources:
-      - type: archive
-        url: https://ftp.gnu.org/gnu/guile/guile-2.2.7.tar.xz
-        sha256: cdf776ea5f29430b1258209630555beea6d2be5481f9da4d64986b077ff37504
-      - type: patch
-        path: patches/guile2-never-recompile.patch
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /share/aclocal
-      - /share/info
-      - /share/man
-
   # Fontforge build dependency
   - name: libuinameslist
     sources:
@@ -112,9 +83,20 @@ modules:
           - cp -p /usr/share/automake-*/config.{sub,guess} tiff/config/
           - cp -p /usr/share/automake-*/config.{sub,guess} .
     config-opts:
+      - --disable-contrib
       - --disable-cups
+      - --disable-dbus
+      - --disable-fontconfig
       - --disable-gtk
-      - --enable-dynamic
+      - --with-drivers=PNG,PS
+      - --without-cal
+      - --without-ijs
+      - --without-libidn
+      - --without-libpaper
+      - --without-libtiff
+      - --without-pdftoraster
+      - --without-urf
+      - --without-x
     make-args:
       - so
     make-install-args:
@@ -126,6 +108,35 @@ modules:
       - /bin/gpcl6
       - /bin/gxps
 
+  - name: guile
+    modules:
+      - name: gc
+        config-opts:
+          - --disable-docs
+        sources:
+          - type: archive
+            url: https://www.hboehm.info/gc/gc_source/gc-8.0.6.tar.gz
+            sha256: 3b4914abc9fa76593596773e4da671d7ed4d5390e3d46fbf2e5f155e121bea11
+        cleanup:
+          - /include
+    buildsystem: autotools
+    config-opts:
+      - --without-threads
+      - --disable-networking
+      - --disable-error-on-warning
+    sources:
+      - type: archive
+        url: https://ftp.gnu.org/gnu/guile/guile-2.2.7.tar.xz
+        sha256: cdf776ea5f29430b1258209630555beea6d2be5481f9da4d64986b077ff37504
+      - type: patch
+        path: patches/guile2-never-recompile.patch
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+      - /share/aclocal
+      - /share/info
+      - /share/man
+
   - name: lilypond
     buildsystem: simple
     build-commands:
@@ -136,8 +147,8 @@ modules:
       - make install-bytecode
     sources:
       - type: archive
-        url: https://lilypond.org/download/sources/v2.24/lilypond-2.24.1.tar.gz
-        sha256: d5c59087564a5cd6f08a52ba80e7d6509b91c585e44385dcc0fa39265d181509
+        url: https://lilypond.org/download/sources/v2.24/lilypond-2.24.2.tar.gz
+        sha256: 7944e610d7b4f1de4c71ccfe1fbdd3201f54fac54561bdcd048914f8dbb60a48
     build-options:
       arch:
         aarch64:
