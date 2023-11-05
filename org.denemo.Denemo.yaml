@@ -9,12 +9,10 @@ command: denemo
 finish-args:
   # Display
   - --share=ipc
-  - --socket=x11
+  - --socket=fallback-x11
   - --socket=wayland
-  - --device=dri
   # Folder access
   - --filesystem=home
-  - --filesystem=xdg-music
   # Settings for point-and-click. Disabled, because Denemo does not support dbus.
   # - --filesystem=/tmp   # textedit links point to .ly files in /tmp
   # - --talk-name=org.gnome.evince.Daemon  # Evince internal synctex requires D-Bus
@@ -327,12 +325,11 @@ modules:
   - name: denemo
     sources:
       - type: archive
-        url: http://ftp.gnu.org/gnu/denemo/denemo-2.6.0.tar.gz
-        sha256: 4be5970c69847f97f1f876275c9744e5034e7c983b12a1045fb20c236494b55d
-      # For a possible alternative, see https://github.com/flathub/org.freedesktop.appstream.cli/issues/1
+        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-r2.6.34.tar.gz
+        sha256: 9e90a372687aee675fe81a09349b26dfff9fa386a47fc19c1824c80644ec8a27
       - type: patch
-        path: patches/denemo-metainfo-add-2.6.0-release.patch
+        path: patches/denemo-metainfo.patch
     post-install:
       # Flatpak expects the icon to be under /app/share/icons
-      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/org.denemo.Denemo.png
+      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
 
