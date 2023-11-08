@@ -329,7 +329,11 @@ modules:
         sha256: 9e90a372687aee675fe81a09349b26dfff9fa386a47fc19c1824c80644ec8a27
       - type: patch
         path: patches/denemo-metainfo.patch
+      - type: file
+        path: org.denemo.Denemo.png
     post-install:
       # Flatpak expects the icon to be under /app/share/icons
-      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
+      #- mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
+      # Copy 128px icon of this repository (for 2.6.34 release only):
+      - cp org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
 
