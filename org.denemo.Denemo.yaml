@@ -1,7 +1,7 @@
 ---
 app-id: org.denemo.Denemo
 runtime: org.freedesktop.Platform
-runtime-version: '23.08'
+runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.texlive
@@ -72,17 +72,8 @@ modules:
   - name: ghostscript
     sources:
       - type: archive
-        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9533/ghostscript-9.53.3.tar.xz
-        sha256: 9c9f5bc85b6c7eb08368c05b1e3339f7aaf9677ddca710c6283f872d55e2a234
-      - type: shell
-        commands:
-          - cp -p /usr/share/automake-*/config.{sub,guess} freetype/builds/unix/
-          - cp -p /usr/share/automake-*/config.{sub,guess} ijs/
-          - cp -p /usr/share/automake-*/config.{sub,guess} jpeg/
-          - cp -p /usr/share/automake-*/config.{sub,guess} libpng/
-          - cp -p /usr/share/automake-*/config.{sub,guess} lcms2mt/
-          - cp -p /usr/share/automake-*/config.{sub,guess} tiff/config/
-          - cp -p /usr/share/automake-*/config.{sub,guess} .
+        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10030/ghostscript-10.03.0.tar.xz
+        sha256: f25ff491a726d883f0b0f9c8af9b895c674cf77cddd814aa3824b3223f439ee5
     config-opts:
       - --disable-contrib
       - --disable-cups
@@ -96,6 +87,7 @@ modules:
       - --without-libpaper
       - --without-libtiff
       - --without-pdftoraster
+      - --without-tesseract
       - --without-urf
       - --without-x
     make-args:
@@ -170,9 +162,11 @@ modules:
       - type: archive
         url: http://aubio.org/pub/aubio-0.4.9.tar.bz2
         sha256: d48282ae4dab83b3dc94c16cf011bcb63835c1c02b515490e1883049c3d1f3da
-      # From https://src.fedoraproject.org/rpms/aubio/tree/f39
+      # From https://src.fedoraproject.org/rpms/aubio/tree/rawhide
       - type: patch
         path: patches/aubio-python.patch
+      - type: patch
+        path: patches/aubio-imp-removed.patch
     cleanup:
       - /bin
       - /include
@@ -324,16 +318,11 @@ modules:
 
   - name: denemo
     sources:
-      - type: archive
-        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-r2.6.34.tar.gz
-        sha256: 9e90a372687aee675fe81a09349b26dfff9fa386a47fc19c1824c80644ec8a27
-      - type: patch
-        path: patches/denemo-metainfo.patch
-      - type: file
-        path: org.denemo.Denemo.png
-    post-install:
-      # Flatpak expects the icon to be under /app/share/icons
-      #- mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
-      # Copy 128px icon of this repository (for 2.6.34 release only):
-      - cp org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
+      #- type: archive
+      #  url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-r2.6.34.tar.gz
+      #  sha256: 9e90a372687aee675fe81a09349b26dfff9fa386a47fc19c1824c80644ec8a27
+      # Test build of git master
+      - type: git
+        url: https://git.savannah.gnu.org/git/denemo.git
+        commit: 5f3dcad2ab020cb5059ebbf7e1ef6a168630d8a6
 
