@@ -197,8 +197,8 @@ modules:
       - prefix=/app
     sources:
       - type: archive
-        url: https://poppler.freedesktop.org/poppler-data-0.4.11.tar.gz
-        sha256: 2cec05cd1bb03af98a8b06a1e22f6e6e1a65b1e2f3816cb3069bb0874825f08c
+        url: https://poppler.freedesktop.org/poppler-data-0.4.12.tar.gz
+        sha256: c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74
     cleanup:
       - /share/pkgconfig
 
@@ -217,8 +217,8 @@ modules:
       - /share/pkgconfig
     sources:
       - type: archive
-        url: https://poppler.freedesktop.org/poppler-22.08.0.tar.xz
-        sha256: b493328721402f25cb7523f9cdc2f7d7c59f45ad999bde75c63c90604db0f20b
+        url: https://poppler.freedesktop.org/poppler-25.02.0.tar.xz
+        sha256: 21234cb2a9647d73c752ce4031e65a79d11a511a835f2798284c2497b8701dee
 
   - name: evince
     buildsystem: meson
@@ -245,8 +245,8 @@ modules:
       - /share/metainfo
     sources:
       - type: archive
-        url: https://download.gnome.org/sources/evince/44/evince-44.3.tar.xz
-        sha256: 3b8ba1581a47a6e9f57f6b6aa08f0fb67549c60121aa24e31140e93947b83622
+        url: https://download.gnome.org/sources/evince/46/evince-46.3.tar.xz
+        sha256: bc0d1d41b9d7ffc762e99d2abfafacbf745182f0b31d86db5eec8c67f5f3006b
       - type: shell
         commands:
           # Remove libhandy dep, not needed with -Dviewer=false
@@ -264,8 +264,8 @@ modules:
       - /share/man
     sources:
       - type: archive
-        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.3.4.tar.gz
-        sha256: 1529ef5bc3b9ef3adc2a7964505912f7305103e269e50cc0316f500b22053ac9
+        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.4.3.tar.gz
+        sha256: a92aa83d2ff09a1a6d6186e81d8182bd2958947dffca77a6490ffd41b3ec9dc7
 
   - name: vamp-plugin-sdk
     no-parallel-make: true
@@ -286,8 +286,8 @@ modules:
     buildsystem: meson
     sources:
       - type: archive
-        url: https://breakfastquay.com/files/releases/rubberband-3.3.0.tar.bz2
-        sha256: d9ef89e2b8ef9f85b13ac3c2faec30e20acf2c9f3a9c8c45ce637f2bc95e576c
+        url: https://breakfastquay.com/files/releases/rubberband-4.0.0.tar.bz2
+        sha256: af050313ee63bc18b35b2e064e5dce05b276aaf6d1aa2b8a82ced1fe2f8028e9
     cleanup:
       - /include
       - /lib/pkgconfig
