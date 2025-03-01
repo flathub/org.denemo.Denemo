@@ -331,6 +331,8 @@ modules:
             url: https://github.com/jlaurens/synctex.git
             # latest commit in the 2024 branch
             commit: 0668445124169be0be18d4b768cdf1be0b11a994
+          - type: patch
+            path: patches/synctex-meson-fix.patch
 
   - name: denemo
     sources:
