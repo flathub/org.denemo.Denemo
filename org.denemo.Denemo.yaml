@@ -209,6 +209,8 @@ modules:
       - -DCMAKE_INSTALL_INCLUDEDIR=/app/include
       - -DENABLE_BOOST=OFF
       - -DENABLE_LIBOPENJPEG=none
+      - -DENABLE_QT5=OFF
+      - -DENABLE_QT6=OFF
     cleanup:
       - /bin
       - /include
@@ -219,40 +221,6 @@ modules:
       - type: archive
         url: https://poppler.freedesktop.org/poppler-25.02.0.tar.xz
         sha256: 21234cb2a9647d73c752ce4031e65a79d11a511a835f2798284c2497b8701dee
-
-  - name: evince
-    buildsystem: meson
-    config-opts:
-      - -Dcomics=disabled
-      # - -Ddbus=true # true by default
-      - -Dgtk_doc=false
-      - -Dinternal_synctex=true
-      - -Dintrospection=true
-      - -Dnautilus=false
-      - -Dpreviewer=false
-      - -Dsystemduserunitdir=no
-      - -Dthumbnail_cache=disabled
-      - -Duser_doc=false
-      - -Dviewer=false
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /man
-      - /share/applications
-      - /share/GConf
-      - /share/help
-      - /share/man
-      - /share/metainfo
-    sources:
-      - type: archive
-        url: https://download.gnome.org/sources/evince/46/evince-46.3.tar.xz
-        sha256: bc0d1d41b9d7ffc762e99d2abfafacbf745182f0b31d86db5eec8c67f5f3006b
-      - type: shell
-        commands:
-          # Remove libhandy dep, not needed with -Dviewer=false
-          - sed -i '/hdy_dep/d' meson.build
-          # Remove adwaita-icon-theme support, not needed with -Dviewer=false
-          - sed -i '/adwaita_icon_them/d' meson.build
 
   - name: fluidsynth
     buildsystem: cmake-ninja
@@ -319,6 +287,50 @@ modules:
     cleanup:
       - /bin
       - /include
+
+  # Atril replaces Evince
+  - name: atril
+    buildsystem: autotools
+    config-opts:
+      - --disable-caja
+      - --disable-schemas-compile
+      - --enable-introspection
+      - --enable-comics
+      - --enable-synctex
+      - --prefix=/app
+      - --without-keyring
+    cleanup:
+      - /include
+    sources:
+      - type: archive
+        url: https://github.com/mate-desktop/atril/releases/download/v1.28.1/atril-1.28.1.tar.xz
+        sha256: 74c4f42979f3ead52def23767448d06ad7f715421e03c9b509404b096de8193e
+    modules:
+      - name: dconf
+        buildsystem: meson
+        config-opts:
+          - -Dbash_completion=false
+          - -Dman=false
+          - -Dvapi=false
+        sources:
+          - type: archive
+            url: https://download.gnome.org/sources/dconf/0.40/dconf-0.40.0.tar.xz
+            sha256: cf7f22a4c9200421d8d3325c5c1b8b93a36843650c9f95d6451e20f0bcb24533
+      - name: mate-desktop
+        buildsystem: autotools
+        config-opts:
+          - --prefix=/app
+        sources:
+          - type: archive
+            url: https://github.com/mate-desktop/mate-desktop/releases/download/v1.28.2/mate-desktop-1.28.2.tar.xz
+            sha256: 32bb4b792014b391c1e1b8ae9c18a82b4d447650984b4cba7d28e95564964aa2
+      - name: synctex
+        buildsystem: meson
+        sources:
+          - type: git
+            url: https://github.com/jlaurens/synctex.git
+            # latest commit in the 2024 branch
+            commit: 0668445124169be0be18d4b768cdf1be0b11a994
 
   - name: denemo
     sources:
