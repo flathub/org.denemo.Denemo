@@ -326,6 +326,8 @@ modules:
             sha256: 32bb4b792014b391c1e1b8ae9c18a82b4d447650984b4cba7d28e95564964aa2
       - name: synctex
         buildsystem: meson
+        config-opts:
+          - --prefix=/app
         sources:
           - type: git
             url: https://github.com/jlaurens/synctex.git
