@@ -291,6 +291,11 @@ modules:
   # Atril replaces Evince
   - name: atril
     buildsystem: autotools
+    #build-options:
+      #env:
+        #SYNCTEX_CFLAGS: /app/lib
+        #SYNCTEX_LIBS: /app/lib
+        #LIBS: /app/lib
     config-opts:
       - --disable-caja
       - --disable-schemas-compile
