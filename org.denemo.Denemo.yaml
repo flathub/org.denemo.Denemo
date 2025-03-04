@@ -299,7 +299,9 @@ modules:
     config-opts:
       - --disable-caja
       - --disable-schemas-compile
-      - --enable-introspection
+      # Introspection disabled, because it tries to install a file in /usr/share
+      # /usr/bin/install -c -m 644 AtrilDocument-1.5.0.gir '/usr/share/gir-1.0'
+      #- --enable-introspection
       - --enable-comics
       # Atril can't find synctex. Let's disable until I find a workaround.
       #- --enable-synctex
