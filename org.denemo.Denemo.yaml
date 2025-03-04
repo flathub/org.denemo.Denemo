@@ -301,7 +301,9 @@ modules:
       - --disable-schemas-compile
       - --enable-introspection
       - --enable-comics
-      - --enable-synctex
+      # Atril can't find synctex. Let's disable until I find a workaround.
+      #- --enable-synctex
+      - --disable-synctex
       - --prefix=/app
       - --without-keyring
     cleanup:
