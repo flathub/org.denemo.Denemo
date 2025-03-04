@@ -354,4 +354,7 @@ modules:
       - type: git
         url: https://git.savannah.gnu.org/git/denemo.git
         commit: 5f3dcad2ab020cb5059ebbf7e1ef6a168630d8a6
+    post-install:
+      # Flatpak expects the icon to be under /app/share/icons
+      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
 
