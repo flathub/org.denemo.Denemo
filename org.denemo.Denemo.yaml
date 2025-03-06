@@ -109,6 +109,7 @@ modules:
             sha256: 3b4914abc9fa76593596773e4da671d7ed4d5390e3d46fbf2e5f155e121bea11
         cleanup:
           - /include
+          - /lib/pkgconfig
     buildsystem: autotools
     config-opts:
       - --without-threads
@@ -188,43 +189,13 @@ modules:
       - type: patch
         path: patches/gtksourceview3-0001-gcc14.patch
 
-  - name: poppler-data
-    no-autogen: true
-    make-install-args:
-      - prefix=/app
-    sources:
-      - type: archive
-        url: https://poppler.freedesktop.org/poppler-data-0.4.12.tar.gz
-        sha256: c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74
-    cleanup:
-      - /share/pkgconfig
-
-  - name: poppler
-    buildsystem: cmake-ninja
-    config-opts:
-      - -DCMAKE_INSTALL_LIBDIR=/app/lib
-      - -DCMAKE_INSTALL_INCLUDEDIR=/app/include
-      - -DENABLE_BOOST=OFF
-      - -DENABLE_LIBOPENJPEG=none
-      - -DENABLE_QT5=OFF
-      - -DENABLE_QT6=OFF
-    cleanup:
-      - /bin
-      - /include
-      - /lib/pkgconfig
-      - /share/man
-      - /share/pkgconfig
-    sources:
-      - type: archive
-        url: https://poppler.freedesktop.org/poppler-25.02.0.tar.xz
-        sha256: 21234cb2a9647d73c752ce4031e65a79d11a511a835f2798284c2497b8701dee
-
   - name: fluidsynth
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
     cleanup:
       - /include
+      - /lib/cmake
       - /lib/pkgconfig
       - /share/man
     sources:
@@ -264,6 +235,7 @@ modules:
     buildsystem: cmake-ninja
     cleanup:
       - /include
+      - /lib/cmake
       - /lib/pkgconfig
       - /share/doc
     sources:
@@ -284,6 +256,7 @@ modules:
     cleanup:
       - /bin
       - /include
+      - /lib/cmake
 
   # Atril replaces Evince. Some Denemo features (like point-and-click) do not
   # work with libevince.
@@ -291,18 +264,21 @@ modules:
     buildsystem: autotools
     config-opts:
       - --disable-caja
+      - --disable-gtk-doc-html
       - --disable-schemas-compile
+      - --disable-synctex
+      - --enable-comics
       # Introspection disabled, because it tries to install a file in /usr/share
       # /usr/bin/install -c -m 644 AtrilDocument-1.5.0.gir '/usr/share/gir-1.0'
       # - --enable-introspection
-      - --enable-comics
-      # Atril can't find synctex. Let's disable until I find a workaround.
-      #- --enable-synctex
-      - --disable-synctex
       - --prefix=/app
       - --without-keyring
     cleanup:
       - /include
+      - /lib/pkgconfig
+      - /share/gtk-doc
+      - /share/help
+      - /share/man
     sources:
       - type: archive
         url: https://github.com/mate-desktop/atril/releases/download/v1.28.1/atril-1.28.1.tar.xz
@@ -314,6 +290,10 @@ modules:
           - -Dbash_completion=false
           - -Dman=false
           - -Dvapi=false
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /lib/systemd
         sources:
           - type: archive
             url: https://download.gnome.org/sources/dconf/0.40/dconf-0.40.0.tar.xz
@@ -321,11 +301,46 @@ modules:
       - name: mate-desktop
         buildsystem: autotools
         config-opts:
+          - --disable-gtk-doc-html
           - --prefix=/app
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /share/gtk-doc
+          - /share/man
         sources:
           - type: archive
             url: https://github.com/mate-desktop/mate-desktop/releases/download/v1.28.2/mate-desktop-1.28.2.tar.xz
             sha256: 32bb4b792014b391c1e1b8ae9c18a82b4d447650984b4cba7d28e95564964aa2
+      - name: poppler-data
+        no-autogen: true
+        make-install-args:
+          - prefix=/app
+        sources:
+          - type: archive
+            url: https://poppler.freedesktop.org/poppler-data-0.4.12.tar.gz
+            sha256: c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74
+        cleanup:
+          - /share/pkgconfig
+      - name: poppler
+        buildsystem: cmake-ninja
+        config-opts:
+          - -DCMAKE_INSTALL_LIBDIR=/app/lib
+          - -DCMAKE_INSTALL_INCLUDEDIR=/app/include
+          - -DENABLE_BOOST=OFF
+          - -DENABLE_LIBOPENJPEG=none
+          - -DENABLE_QT5=OFF
+          - -DENABLE_QT6=OFF
+        cleanup:
+          - /bin
+          - /include
+          - /lib/pkgconfig
+          - /share/man
+          - /share/pkgconfig
+        sources:
+          - type: archive
+            url: https://poppler.freedesktop.org/poppler-25.02.0.tar.xz
+            sha256: 21234cb2a9647d73c752ce4031e65a79d11a511a835f2798284c2497b8701dee
 
   - name: denemo
     sources:
@@ -335,7 +350,7 @@ modules:
       # Test build of git master
       - type: git
         url: https://git.savannah.gnu.org/git/denemo.git
-        commit: 5f3dcad2ab020cb5059ebbf7e1ef6a168630d8a6
+        commit: fa172f9059af9d0bcf1ac1f223c46aec2a012911
     post-install:
       # Flatpak expects the icon to be under /app/share/icons
       - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
