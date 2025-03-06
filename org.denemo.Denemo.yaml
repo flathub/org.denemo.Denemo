@@ -13,9 +13,6 @@ finish-args:
   - --socket=wayland
   # Folder access
   - --filesystem=home
-  # Settings for point-and-click. Disabled, because Denemo does not support dbus.
-  # - --filesystem=/tmp   # textedit links point to .ly files in /tmp
-  # - --talk-name=org.gnome.evince.Daemon  # Evince internal synctex requires D-Bus
   # Needed for PortAudio/MIDI
   - --device=all
   # Needed for note playpack
@@ -288,20 +285,16 @@ modules:
       - /bin
       - /include
 
-  # Atril replaces Evince
+  # Atril replaces Evince. Some Denemo features (like point-and-click) do not
+  # work with libevince.
   - name: atril
     buildsystem: autotools
-    #build-options:
-      #env:
-        #SYNCTEX_CFLAGS: /app/lib
-        #SYNCTEX_LIBS: /app/lib
-        #LIBS: /app/lib
     config-opts:
       - --disable-caja
       - --disable-schemas-compile
       # Introspection disabled, because it tries to install a file in /usr/share
       # /usr/bin/install -c -m 644 AtrilDocument-1.5.0.gir '/usr/share/gir-1.0'
-      #- --enable-introspection
+      # - --enable-introspection
       - --enable-comics
       # Atril can't find synctex. Let's disable until I find a workaround.
       #- --enable-synctex
@@ -333,17 +326,6 @@ modules:
           - type: archive
             url: https://github.com/mate-desktop/mate-desktop/releases/download/v1.28.2/mate-desktop-1.28.2.tar.xz
             sha256: 32bb4b792014b391c1e1b8ae9c18a82b4d447650984b4cba7d28e95564964aa2
-      - name: synctex
-        buildsystem: meson
-        config-opts:
-          - --prefix=/app
-        sources:
-          - type: git
-            url: https://github.com/jlaurens/synctex.git
-            # latest commit in the 2024 branch
-            commit: 0668445124169be0be18d4b768cdf1be0b11a994
-          - type: patch
-            path: patches/synctex-meson-fix.patch
 
   - name: denemo
     sources:
