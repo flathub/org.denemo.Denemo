@@ -344,13 +344,9 @@ modules:
 
   - name: denemo
     sources:
-      #- type: archive
-      #  url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-r2.6.34.tar.gz
-      #  sha256: 9e90a372687aee675fe81a09349b26dfff9fa386a47fc19c1824c80644ec8a27
-      # Test build of git master
-      - type: git
-        url: https://git.savannah.gnu.org/git/denemo.git
-        commit: fa172f9059af9d0bcf1ac1f223c46aec2a012911
+      - type: archive
+        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-2.6.44.tar.gz
+        sha256: 3347f1ed7a2d13519e2c797d2779d892389db7e45b58d56ba7a1cba739bedd55
     post-install:
       # Flatpak expects the icon to be under /app/share/icons
       - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
