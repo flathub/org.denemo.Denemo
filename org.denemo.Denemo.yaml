@@ -1,7 +1,7 @@
 ---
 app-id: org.denemo.Denemo
 runtime: org.freedesktop.Platform
-runtime-version: '23.08'
+runtime-version: '24.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.texlive
@@ -13,9 +13,6 @@ finish-args:
   - --socket=wayland
   # Folder access
   - --filesystem=home
-  # Settings for point-and-click. Disabled, because Denemo does not support dbus.
-  # - --filesystem=/tmp   # textedit links point to .ly files in /tmp
-  # - --talk-name=org.gnome.evince.Daemon  # Evince internal synctex requires D-Bus
   # Needed for PortAudio/MIDI
   - --device=all
   # Needed for note playpack
@@ -72,17 +69,8 @@ modules:
   - name: ghostscript
     sources:
       - type: archive
-        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs9533/ghostscript-9.53.3.tar.xz
-        sha256: 9c9f5bc85b6c7eb08368c05b1e3339f7aaf9677ddca710c6283f872d55e2a234
-      - type: shell
-        commands:
-          - cp -p /usr/share/automake-*/config.{sub,guess} freetype/builds/unix/
-          - cp -p /usr/share/automake-*/config.{sub,guess} ijs/
-          - cp -p /usr/share/automake-*/config.{sub,guess} jpeg/
-          - cp -p /usr/share/automake-*/config.{sub,guess} libpng/
-          - cp -p /usr/share/automake-*/config.{sub,guess} lcms2mt/
-          - cp -p /usr/share/automake-*/config.{sub,guess} tiff/config/
-          - cp -p /usr/share/automake-*/config.{sub,guess} .
+        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10030/ghostscript-10.03.0.tar.xz
+        sha256: f25ff491a726d883f0b0f9c8af9b895c674cf77cddd814aa3824b3223f439ee5
     config-opts:
       - --disable-contrib
       - --disable-cups
@@ -96,6 +84,7 @@ modules:
       - --without-libpaper
       - --without-libtiff
       - --without-pdftoraster
+      - --without-tesseract
       - --without-urf
       - --without-x
     make-args:
@@ -120,6 +109,7 @@ modules:
             sha256: 3b4914abc9fa76593596773e4da671d7ed4d5390e3d46fbf2e5f155e121bea11
         cleanup:
           - /include
+          - /lib/pkgconfig
     buildsystem: autotools
     config-opts:
       - --without-threads
@@ -170,9 +160,11 @@ modules:
       - type: archive
         url: http://aubio.org/pub/aubio-0.4.9.tar.bz2
         sha256: d48282ae4dab83b3dc94c16cf011bcb63835c1c02b515490e1883049c3d1f3da
-      # From https://src.fedoraproject.org/rpms/aubio/tree/f39
+      # From https://src.fedoraproject.org/rpms/aubio/tree/rawhide
       - type: patch
         path: patches/aubio-python.patch
+      - type: patch
+        path: patches/aubio-imp-removed.patch
     cleanup:
       - /bin
       - /include
@@ -188,73 +180,14 @@ modules:
       - /include
       - /lib/pkgconfig
       - /share/gtk-doc
+      - "*.la"
     sources:
       - type: archive
         url: https://download.gnome.org/sources/gtksourceview/3.24/gtksourceview-3.24.11.tar.xz
         sha256: 691b074a37b2a307f7f48edc5b8c7afa7301709be56378ccf9cc9735909077fd
-
-  - name: poppler-data
-    no-autogen: true
-    make-install-args:
-      - prefix=/app
-    sources:
-      - type: archive
-        url: https://poppler.freedesktop.org/poppler-data-0.4.11.tar.gz
-        sha256: 2cec05cd1bb03af98a8b06a1e22f6e6e1a65b1e2f3816cb3069bb0874825f08c
-    cleanup:
-      - /share/pkgconfig
-
-  - name: poppler
-    buildsystem: cmake-ninja
-    config-opts:
-      - -DCMAKE_INSTALL_LIBDIR=/app/lib
-      - -DCMAKE_INSTALL_INCLUDEDIR=/app/include
-      - -DENABLE_BOOST=OFF
-      - -DENABLE_LIBOPENJPEG=none
-    cleanup:
-      - /bin
-      - /include
-      - /lib/pkgconfig
-      - /share/man
-      - /share/pkgconfig
-    sources:
-      - type: archive
-        url: https://poppler.freedesktop.org/poppler-22.08.0.tar.xz
-        sha256: b493328721402f25cb7523f9cdc2f7d7c59f45ad999bde75c63c90604db0f20b
-
-  - name: evince
-    buildsystem: meson
-    config-opts:
-      - -Dcomics=disabled
-      # - -Ddbus=true # true by default
-      - -Dgtk_doc=false
-      - -Dinternal_synctex=true
-      - -Dintrospection=true
-      - -Dnautilus=false
-      - -Dpreviewer=false
-      - -Dsystemduserunitdir=no
-      - -Dthumbnail_cache=disabled
-      - -Duser_doc=false
-      - -Dviewer=false
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /man
-      - /share/applications
-      - /share/GConf
-      - /share/help
-      - /share/man
-      - /share/metainfo
-    sources:
-      - type: archive
-        url: https://download.gnome.org/sources/evince/44/evince-44.3.tar.xz
-        sha256: 3b8ba1581a47a6e9f57f6b6aa08f0fb67549c60121aa24e31140e93947b83622
-      - type: shell
-        commands:
-          # Remove libhandy dep, not needed with -Dviewer=false
-          - sed -i '/hdy_dep/d' meson.build
-          # Remove adwaita-icon-theme support, not needed with -Dviewer=false
-          - sed -i '/adwaita_icon_them/d' meson.build
+      # https://src.fedoraproject.org/rpms/gtksourceview3/tree/rawhide
+      - type: patch
+        path: patches/gtksourceview3-0001-gcc14.patch
 
   - name: fluidsynth
     buildsystem: cmake-ninja
@@ -262,12 +195,13 @@ modules:
       - -DCMAKE_BUILD_TYPE=Release
     cleanup:
       - /include
+      - /lib/cmake
       - /lib/pkgconfig
       - /share/man
     sources:
       - type: archive
-        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.3.4.tar.gz
-        sha256: 1529ef5bc3b9ef3adc2a7964505912f7305103e269e50cc0316f500b22053ac9
+        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.4.3.tar.gz
+        sha256: a92aa83d2ff09a1a6d6186e81d8182bd2958947dffca77a6490ffd41b3ec9dc7
 
   - name: vamp-plugin-sdk
     no-parallel-make: true
@@ -288,8 +222,8 @@ modules:
     buildsystem: meson
     sources:
       - type: archive
-        url: https://breakfastquay.com/files/releases/rubberband-3.3.0.tar.bz2
-        sha256: d9ef89e2b8ef9f85b13ac3c2faec30e20acf2c9f3a9c8c45ce637f2bc95e576c
+        url: https://breakfastquay.com/files/releases/rubberband-4.0.0.tar.bz2
+        sha256: af050313ee63bc18b35b2e064e5dce05b276aaf6d1aa2b8a82ced1fe2f8028e9
     cleanup:
       - /include
       - /lib/pkgconfig
@@ -301,6 +235,7 @@ modules:
     buildsystem: cmake-ninja
     cleanup:
       - /include
+      - /lib/cmake
       - /lib/pkgconfig
       - /share/doc
     sources:
@@ -321,19 +256,98 @@ modules:
     cleanup:
       - /bin
       - /include
+      - /lib/cmake
+
+  # Atril replaces Evince. Some Denemo features (like point-and-click) do not
+  # work with libevince.
+  - name: atril
+    buildsystem: autotools
+    config-opts:
+      - --disable-caja
+      - --disable-gtk-doc-html
+      - --disable-schemas-compile
+      - --disable-synctex
+      - --enable-comics
+      # Introspection disabled, because it tries to install a file in /usr/share
+      # /usr/bin/install -c -m 644 AtrilDocument-1.5.0.gir '/usr/share/gir-1.0'
+      # - --enable-introspection
+      - --prefix=/app
+      - --without-keyring
+    cleanup:
+      - /include
+      - /lib/pkgconfig
+      - /share/gtk-doc
+      - /share/help
+      - /share/man
+    sources:
+      - type: archive
+        url: https://github.com/mate-desktop/atril/releases/download/v1.28.1/atril-1.28.1.tar.xz
+        sha256: 74c4f42979f3ead52def23767448d06ad7f715421e03c9b509404b096de8193e
+    modules:
+      - name: dconf
+        buildsystem: meson
+        config-opts:
+          - -Dbash_completion=false
+          - -Dman=false
+          - -Dvapi=false
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /lib/systemd
+        sources:
+          - type: archive
+            url: https://download.gnome.org/sources/dconf/0.40/dconf-0.40.0.tar.xz
+            sha256: cf7f22a4c9200421d8d3325c5c1b8b93a36843650c9f95d6451e20f0bcb24533
+      - name: mate-desktop
+        buildsystem: autotools
+        config-opts:
+          - --disable-gtk-doc-html
+          - --prefix=/app
+        cleanup:
+          - /include
+          - /lib/pkgconfig
+          - /share/gtk-doc
+          - /share/man
+        sources:
+          - type: archive
+            url: https://github.com/mate-desktop/mate-desktop/releases/download/v1.28.2/mate-desktop-1.28.2.tar.xz
+            sha256: 32bb4b792014b391c1e1b8ae9c18a82b4d447650984b4cba7d28e95564964aa2
+      - name: poppler-data
+        no-autogen: true
+        make-install-args:
+          - prefix=/app
+        sources:
+          - type: archive
+            url: https://poppler.freedesktop.org/poppler-data-0.4.12.tar.gz
+            sha256: c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74
+        cleanup:
+          - /share/pkgconfig
+      - name: poppler
+        buildsystem: cmake-ninja
+        config-opts:
+          - -DCMAKE_INSTALL_LIBDIR=/app/lib
+          - -DCMAKE_INSTALL_INCLUDEDIR=/app/include
+          - -DENABLE_BOOST=OFF
+          - -DENABLE_LIBOPENJPEG=none
+          - -DENABLE_QT5=OFF
+          - -DENABLE_QT6=OFF
+        cleanup:
+          - /bin
+          - /include
+          - /lib/pkgconfig
+          - /share/man
+          - /share/pkgconfig
+        sources:
+          - type: archive
+            url: https://poppler.freedesktop.org/poppler-25.02.0.tar.xz
+            sha256: 21234cb2a9647d73c752ce4031e65a79d11a511a835f2798284c2497b8701dee
 
   - name: denemo
     sources:
       - type: archive
-        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-r2.6.34.tar.gz
-        sha256: 9e90a372687aee675fe81a09349b26dfff9fa386a47fc19c1824c80644ec8a27
-      - type: patch
-        path: patches/denemo-metainfo.patch
-      - type: file
-        path: org.denemo.Denemo.png
+        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-2.6.44.tar.gz
+        sha256: 3347f1ed7a2d13519e2c797d2779d892389db7e45b58d56ba7a1cba739bedd55
     post-install:
       # Flatpak expects the icon to be under /app/share/icons
-      #- mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
-      # Copy 128px icon of this repository (for 2.6.34 release only):
-      - cp org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
+      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
 
