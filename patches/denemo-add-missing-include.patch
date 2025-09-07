@@ -1,0 +1,24 @@
+From 6f99fe6d6371a1f26b58ee5240c3297807658e00 Mon Sep 17 00:00:00 2001
+From: Richard Shann <richard@rshann.plus.com>
+Date: Sun, 14 Sep 2025 08:34:19 +0100
+Subject: include prototype#
+
+---
+ src/scripting/scheme-callbacks.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/scripting/scheme-callbacks.c b/src/scripting/scheme-callbacks.c
+index ae4653a76..868da4244 100644
+--- a/src/scripting/scheme-callbacks.c
++++ b/src/scripting/scheme-callbacks.c
+@@ -38,6 +38,7 @@
+ #include "printview/printview.h"
+ #include "printview/markupview.h"
+ #include "display/calculatepositions.h"
++#include "display/displayanimation.h"
+ #include "source/source.h"
+ #include "source/sourceaudio.h"
+ 
+-- 
+cgit v1.2.3
+
