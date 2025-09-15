@@ -1,0 +1,23 @@
+diff --git a/org.denemo.Denemo.metainfo.xml.in b/org.denemo.Denemo.metainfo.xml.in
+index 0b93ef5c7..c8d5cefc0 100644
+--- a/org.denemo.Denemo.metainfo.xml.in
++++ b/org.denemo.Denemo.metainfo.xml.in
+@@ -65,6 +65,7 @@
+     <keyword>Music</keyword>
+  </keywords>
+  <releases>
++ <release type="stable" version="2.6.49" date="2025-09-07" />
+  <release type="stable" version="2.6.44" date="2025-03-06" />
+  <release type="stable" version="2.6.34" date="2023-11-05" />
+  <release type="stable" version="2.6.0" date="2022-03-11" />
+diff --git a/src/scripting/scheme-callbacks.c b/src/scripting/scheme-callbacks.c
+index ae4653a76..868da4244 100644
+--- a/src/scripting/scheme-callbacks.c
++++ b/src/scripting/scheme-callbacks.c
+@@ -38,6 +38,7 @@
+ #include "printview/printview.h"
+ #include "printview/markupview.h"
+ #include "display/calculatepositions.h"
++#include "display/displayanimation.h"
+ #include "source/source.h"
+ #include "source/sourceaudio.h"
