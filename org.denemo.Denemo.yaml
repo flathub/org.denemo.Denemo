@@ -22,15 +22,7 @@ finish-args:
   # required to find texlive binaries
   - --env=PATH=/app/texlive/bin/x86_64-linux:/app/texlive/bin/aarch64-linux:/app/bin:/usr/bin
 modules:
-  # Fontforge build dependency
-  - name: libuinameslist
-    sources:
-      - type: archive
-        url: https://github.com/fontforge/libuninameslist/releases/download/20180701/libuninameslist-dist-20180701.tar.gz
-        sha256: 8aed97d0bc872d893d8bf642a14e49958b0613136e1bfe2a415c69599c803c90
-    cleanup:
-      - "*"
-
+  # LilyPond build requirements
   - name: fontforge
     buildsystem: cmake-ninja
     builddir: true
@@ -56,6 +48,8 @@ modules:
     cleanup:
       - "*"
 
+  # LilyPond runtime requirements
+  # Check versions and options on https://gitlab.com/lilypond/lilypond/-/blob/master/release/binaries/lib/dependencies.py
   - name: texgyre
     sources:
       - type: archive
@@ -69,8 +63,8 @@ modules:
   - name: ghostscript
     sources:
       - type: archive
-        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10030/ghostscript-10.03.0.tar.xz
-        sha256: f25ff491a726d883f0b0f9c8af9b895c674cf77cddd814aa3824b3223f439ee5
+        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10051/ghostscript-10.05.1.tar.xz
+        sha256: 22f2bdca15c28830c9715cddc5c296ea66898bfdab0b604a4e0bcfeb03af6cad
     config-opts:
       - --disable-contrib
       - --disable-cups
@@ -92,11 +86,17 @@ modules:
     make-install-args:
       - soinstall
     cleanup:
+      - /bin/dvipdf
+      - /bin/eps2eps
+      - /bin/gpcl6
+      - /bin/gsbj
+      - /bin/gsd*
+      - /bin/gsl
+      - /bin/gsnd
+      - /bin/gxps
       - /include
       - /share/doc
       - /share/man
-      - /bin/gpcl6
-      - /bin/gxps
 
   - name: guile
     modules:
@@ -105,11 +105,10 @@ modules:
           - --disable-docs
         sources:
           - type: archive
-            url: https://www.hboehm.info/gc/gc_source/gc-8.0.6.tar.gz
-            sha256: 3b4914abc9fa76593596773e4da671d7ed4d5390e3d46fbf2e5f155e121bea11
+            url: https://www.hboehm.info/gc/gc_source/gc-8.2.8.tar.gz
+            sha256: 7649020621cb26325e1fb5c8742590d92fb48ce5c259b502faf7d9fb5dabb160
         cleanup:
-          - /include
-          - /lib/pkgconfig
+          - '*.la'
     buildsystem: autotools
     config-opts:
       - --without-threads
@@ -158,7 +157,7 @@ modules:
       - ./waf install
     sources:
       - type: archive
-        url: http://aubio.org/pub/aubio-0.4.9.tar.bz2
+        url: https://aubio.org/pub/aubio-0.4.9.tar.bz2
         sha256: d48282ae4dab83b3dc94c16cf011bcb63835c1c02b515490e1883049c3d1f3da
       # From https://src.fedoraproject.org/rpms/aubio/tree/rawhide
       - type: patch
@@ -200,8 +199,15 @@ modules:
       - /share/man
     sources:
       - type: archive
-        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.4.3.tar.gz
-        sha256: a92aa83d2ff09a1a6d6186e81d8182bd2958947dffca77a6490ffd41b3ec9dc7
+        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.4.7.tar.gz
+        sha256: 7fb0e328c66a24161049e2b9e27c3b6e51a6904b31b1a647f73cc1f322523e88
+        x-checker-data:
+          type: json
+          url: https://api.github.com/repos/FluidSynth/fluidsynth/releases/latest
+          tag-query: .tag_name
+          version-query: .tag_name
+          timestamp-query: .published_at
+          url-query: '"https://github.com/FluidSynth/fluidsynth/archive/refs/tags/" + .tag_name + ".tar.gz"'
 
   - name: vamp-plugin-sdk
     no-parallel-make: true
@@ -343,10 +349,15 @@ modules:
             sha256: 21234cb2a9647d73c752ce4031e65a79d11a511a835f2798284c2497b8701dee
 
   - name: denemo
+    buildsystem: autotools
+    config-opts:
+      - --disable-warnings
     sources:
       - type: archive
-        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-2.6.44.tar.gz
-        sha256: 3347f1ed7a2d13519e2c797d2779d892389db7e45b58d56ba7a1cba739bedd55
+        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-2.6.49.tar.gz
+        sha256: a1da96eb23ed3a51e286803745df673379443043557b15c2a3b1e3ed1482b2b1
+      - type: patch
+        path: patches/denemo-2.6.49.patch
     post-install:
       # Flatpak expects the icon to be under /app/share/icons
       - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
