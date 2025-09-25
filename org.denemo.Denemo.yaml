@@ -38,7 +38,7 @@ modules:
       - type: patch
         path: patches/fontforge-translation-errors.patch
     cleanup:
-      - "*"
+      - '*'
 
   - name: t1utils
     sources:
@@ -46,7 +46,7 @@ modules:
         url: https://github.com/kohler/t1utils/archive/v1.41.tar.gz
         sha256: 0129fbfabb212143f52ff1e5de8ccbef5e5295d46772bad3ed149115bab5a094
     cleanup:
-      - "*"
+      - '*'
 
   # LilyPond runtime requirements
   # Check versions and options on https://gitlab.com/lilypond/lilypond/-/blob/master/release/binaries/lib/dependencies.py
@@ -169,7 +169,7 @@ modules:
       - /include
       - /lib/pkgconfig
       - /share/doc
-      - "*.a"
+      - '*.a'
 
   - name: gtksourceview3
     config-opts:
@@ -179,7 +179,7 @@ modules:
       - /include
       - /lib/pkgconfig
       - /share/gtk-doc
-      - "*.la"
+      - '*.la'
     sources:
       - type: archive
         url: https://download.gnome.org/sources/gtksourceview/3.24/gtksourceview-3.24.11.tar.xz
@@ -199,15 +199,16 @@ modules:
       - /share/man
     sources:
       - type: archive
-        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.4.7.tar.gz
-        sha256: 7fb0e328c66a24161049e2b9e27c3b6e51a6904b31b1a647f73cc1f322523e88
+        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.4.8.tar.gz
+        sha256: d6d04e9014557906ee42aa1fe3cd580840ea482d4c3b1a45fddd45ec606d6e97
         x-checker-data:
           type: json
           url: https://api.github.com/repos/FluidSynth/fluidsynth/releases/latest
           tag-query: .tag_name
           version-query: .tag_name
           timestamp-query: .published_at
-          url-query: '"https://github.com/FluidSynth/fluidsynth/archive/refs/tags/" + .tag_name + ".tar.gz"'
+          url-query: '"https://github.com/FluidSynth/fluidsynth/archive/refs/tags/"
+            + .tag_name + ".tar.gz"'
 
   - name: vamp-plugin-sdk
     no-parallel-make: true
@@ -222,7 +223,7 @@ modules:
       - /include
       - /lib/pkgconfig
       - /share/licenses
-      - "*.a"
+      - '*.a'
 
   - name: rubberband
     buildsystem: meson
@@ -235,7 +236,7 @@ modules:
       - /lib/pkgconfig
       - /share/ladspa
       - /share/licenses
-      - "*.a"
+      - '*.a'
 
   - name: portaudio
     buildsystem: cmake-ninja
