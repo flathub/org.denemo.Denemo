@@ -1,7 +1,6 @@
----
 app-id: org.denemo.Denemo
 runtime: org.freedesktop.Platform
-runtime-version: '24.08'
+runtime-version: '25.08'
 sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.texlive
@@ -21,6 +20,18 @@ finish-args:
   - --filesystem=xdg-run/pipewire-0
   # required to find texlive binaries
   - --env=PATH=/app/texlive/bin/x86_64-linux:/app/texlive/bin/aarch64-linux:/app/bin:/usr/bin
+cleanup:
+  - /include
+  - /lib/cmake
+  - /lib/pkgconfig
+  - /share/doc
+  - /share/gtk-doc
+  - /share/info
+  - /share/man
+  - /share/pkgconfig
+  - '*.la'
+  - '*.a'
+
 modules:
   # LilyPond build requirements
   - name: fontforge
@@ -30,6 +41,8 @@ modules:
       - -DENABLE_DOCS=false
       - -DENABLE_LIBSPIRO=false
       - -DREAL_TYPE=double
+    cleanup:
+      - '*'
     sources:
       - type: archive
         url: https://github.com/fontforge/fontforge/archive/refs/tags/20230101.tar.gz
@@ -37,34 +50,28 @@ modules:
       # From https://src.fedoraproject.org/rpms/fontforge/blob/rawhide/f/0001-Fix-errors-in-French-and-Italian-translations.patch
       - type: patch
         path: patches/fontforge-translation-errors.patch
-    cleanup:
-      - '*'
 
   - name: t1utils
+    cleanup:
+      - '*'
     sources:
       - type: archive
         url: https://github.com/kohler/t1utils/archive/v1.41.tar.gz
         sha256: 0129fbfabb212143f52ff1e5de8ccbef5e5295d46772bad3ed149115bab5a094
-    cleanup:
-      - '*'
 
   # LilyPond runtime requirements
   # Check versions and options on https://gitlab.com/lilypond/lilypond/-/blob/master/release/binaries/lib/dependencies.py
   - name: texgyre
-    sources:
-      - type: archive
-        url: http://www.gust.org.pl/projects/e-foundry/tex-gyre/whole/tg2_501otf.zip
-        sha256: d7f8be5317bec4e644cf16c5abf876abeeb83c43dbec0ccb4eee4516b73b1bbe
     buildsystem: simple
     build-commands:
       - mkdir /app/share/fonts
       - install * /app/share/fonts
-
-  - name: ghostscript
     sources:
       - type: archive
-        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10051/ghostscript-10.05.1.tar.xz
-        sha256: 22f2bdca15c28830c9715cddc5c296ea66898bfdab0b604a4e0bcfeb03af6cad
+        url: http://www.gust.org.pl/projects/e-foundry/tex-gyre/whole/tg2_501otf.zip
+        sha256: d7f8be5317bec4e644cf16c5abf876abeeb83c43dbec0ccb4eee4516b73b1bbe
+
+  - name: ghostscript
     config-opts:
       - --disable-contrib
       - --disable-cups
@@ -94,21 +101,12 @@ modules:
       - /bin/gsl
       - /bin/gsnd
       - /bin/gxps
-      - /include
-      - /share/doc
-      - /share/man
+    sources:
+      - type: archive
+        url: https://github.com/ArtifexSoftware/ghostpdl-downloads/releases/download/gs10070/ghostscript-10.07.0.tar.xz
+        sha256: ddace4e1721f967a55039baff564840225e0baa1d4f5432247ca1ccd1473b7c1
 
   - name: guile
-    modules:
-      - name: gc
-        config-opts:
-          - --disable-docs
-        sources:
-          - type: archive
-            url: https://www.hboehm.info/gc/gc_source/gc-8.2.8.tar.gz
-            sha256: 7649020621cb26325e1fb5c8742590d92fb48ce5c259b502faf7d9fb5dabb160
-        cleanup:
-          - '*.la'
     buildsystem: autotools
     config-opts:
       - --without-threads
@@ -120,12 +118,14 @@ modules:
         sha256: cdf776ea5f29430b1258209630555beea6d2be5481f9da4d64986b077ff37504
       - type: patch
         path: patches/guile2-never-recompile.patch
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /share/aclocal
-      - /share/info
-      - /share/man
+    modules:
+      - name: gc
+        config-opts:
+          - --disable-docs
+        sources:
+          - type: archive
+            url: https://www.hboehm.info/gc/gc_source/gc-8.2.8.tar.gz
+            sha256: 7649020621cb26325e1fb5c8742590d92fb48ce5c259b502faf7d9fb5dabb160
 
   - name: lilypond
     buildsystem: simple
@@ -155,31 +155,23 @@ modules:
       - ./waf configure --prefix=/app --libdir=/app/lib --disable-avcodec
       - ./waf build -j $FLATPAK_BUILDER_N_JOBS
       - ./waf install
+    cleanup:
+      - /bin
     sources:
       - type: archive
         url: https://aubio.org/pub/aubio-0.4.9.tar.bz2
+        disable-http-decompression: true
         sha256: d48282ae4dab83b3dc94c16cf011bcb63835c1c02b515490e1883049c3d1f3da
       # From https://src.fedoraproject.org/rpms/aubio/tree/rawhide
       - type: patch
         path: patches/aubio-python.patch
       - type: patch
         path: patches/aubio-imp-removed.patch
-    cleanup:
-      - /bin
-      - /include
-      - /lib/pkgconfig
-      - /share/doc
-      - '*.a'
 
   - name: gtksourceview3
     config-opts:
       - --enable-gtk-doc=no
       - --enable-introspection=yes
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /share/gtk-doc
-      - '*.la'
     sources:
       - type: archive
         url: https://download.gnome.org/sources/gtksourceview/3.24/gtksourceview-3.24.11.tar.xz
@@ -189,21 +181,9 @@ modules:
         path: patches/gtksourceview3-0001-gcc14.patch
 
   - name: fluidsynth
-    modules:
-      - name: gcem
-        buildsystem: cmake-ninja
-        sources:
-          - type: archive
-            url: https://github.com/kthohr/gcem/archive/refs/tags/v1.18.0.tar.gz
-            sha256: 8e71a9f5b62956da6c409dda44b483f98c4a98ae72184f3aa4659ae5b3462e61
     buildsystem: cmake-ninja
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
-    cleanup:
-      - /include
-      - /lib/cmake
-      - /lib/pkgconfig
-      - /share/man
     sources:
       - type: archive
         url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.5.4.tar.gz
@@ -217,41 +197,38 @@ modules:
           url-query: '"https://github.com/FluidSynth/fluidsynth/archive/refs/tags/"
             + .tag_name + ".tar.gz"'
 
+    modules:
+      - name: gcem
+        buildsystem: cmake-ninja
+        sources:
+          - type: archive
+            url: https://github.com/kthohr/gcem/archive/refs/tags/v1.18.0.tar.gz
+            sha256: 8e71a9f5b62956da6c409dda44b483f98c4a98ae72184f3aa4659ae5b3462e61
+
   - name: vamp-plugin-sdk
     no-parallel-make: true
-    sources:
-      - type: archive
-        url: https://code.soundsoftware.ac.uk/attachments/download/2691/vamp-plugin-sdk-2.10.0.tar.gz
-        sha256: aeaf3762a44b148cebb10cde82f577317ffc9df2720e5445c3df85f3739ff75f
     post-install:
       - install -Dm644 -t /app/share/licenses/vamp-plugin-sdk COPYING
     cleanup:
       - /bin
-      - /include
-      - /lib/pkgconfig
-      - /share/licenses
-      - '*.a'
+    sources:
+      - type: archive
+        url: https://code.soundsoftware.ac.uk/attachments/download/2691/vamp-plugin-sdk-2.10.0.tar.gz
+        mirror-urls:
+          - https://github.com/vamp-plugins/vamp-plugin-sdk/releases/download/vamp-plugin-sdk-v2.10/vamp-plugin-sdk-2.10.0.tar.gz
+        sha256: aeaf3762a44b148cebb10cde82f577317ffc9df2720e5445c3df85f3739ff75f
 
   - name: rubberband
     buildsystem: meson
+    cleanup:
+      - /share/ladspa
     sources:
       - type: archive
         url: https://breakfastquay.com/files/releases/rubberband-4.0.0.tar.bz2
         sha256: af050313ee63bc18b35b2e064e5dce05b276aaf6d1aa2b8a82ced1fe2f8028e9
-    cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /share/ladspa
-      - /share/licenses
-      - '*.a'
 
   - name: portaudio
     buildsystem: cmake-ninja
-    cleanup:
-      - /include
-      - /lib/cmake
-      - /lib/pkgconfig
-      - /share/doc
     sources:
       - type: archive
         url: http://files.portaudio.com/archives/pa_stable_v190700_20210406.tgz
@@ -263,14 +240,12 @@ modules:
       - -DCMAKE_LIBRARY_OUTPUT_DIRECTORY=/app/lib
       - -DCMAKE_ARCHIVE_OUTPUT_DIRECTORY=/app/lib
       - -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/app/bin
+    cleanup:
+      - /bin
     sources:
       - type: archive
         url: https://github.com/PortMidi/portmidi/archive/refs/tags/v2.0.4.tar.gz
         sha256: 64893e823ae146cabd3ad7f9a9a9c5332746abe7847c557b99b2577afa8a607c
-    cleanup:
-      - /bin
-      - /include
-      - /lib/cmake
 
   # Atril replaces Evince. Some Denemo features (like point-and-click) do not
   # work with libevince.
@@ -288,15 +263,12 @@ modules:
       - --prefix=/app
       - --without-keyring
     cleanup:
-      - /include
-      - /lib/pkgconfig
-      - /share/gtk-doc
       - /share/help
-      - /share/man
     sources:
       - type: archive
         url: https://github.com/mate-desktop/atril/releases/download/v1.28.1/atril-1.28.1.tar.xz
         sha256: 74c4f42979f3ead52def23767448d06ad7f715421e03c9b509404b096de8193e
+
     modules:
       - name: dconf
         buildsystem: meson
@@ -305,27 +277,22 @@ modules:
           - -Dman=false
           - -Dvapi=false
         cleanup:
-          - /include
-          - /lib/pkgconfig
           - /lib/systemd
         sources:
           - type: archive
             url: https://download.gnome.org/sources/dconf/0.40/dconf-0.40.0.tar.xz
             sha256: cf7f22a4c9200421d8d3325c5c1b8b93a36843650c9f95d6451e20f0bcb24533
+
       - name: mate-desktop
         buildsystem: autotools
         config-opts:
           - --disable-gtk-doc-html
           - --prefix=/app
-        cleanup:
-          - /include
-          - /lib/pkgconfig
-          - /share/gtk-doc
-          - /share/man
         sources:
           - type: archive
             url: https://github.com/mate-desktop/mate-desktop/releases/download/v1.28.2/mate-desktop-1.28.2.tar.xz
             sha256: 32bb4b792014b391c1e1b8ae9c18a82b4d447650984b4cba7d28e95564964aa2
+
       - name: poppler-data
         no-autogen: true
         make-install-args:
@@ -334,8 +301,7 @@ modules:
           - type: archive
             url: https://poppler.freedesktop.org/poppler-data-0.4.12.tar.gz
             sha256: c835b640a40ce357e1b83666aabd95edffa24ddddd49b8daff63adb851cdab74
-        cleanup:
-          - /share/pkgconfig
+
       - name: poppler
         buildsystem: cmake-ninja
         config-opts:
@@ -347,10 +313,6 @@ modules:
           - -DENABLE_QT6=OFF
         cleanup:
           - /bin
-          - /include
-          - /lib/pkgconfig
-          - /share/man
-          - /share/pkgconfig
         sources:
           - type: archive
             url: https://poppler.freedesktop.org/poppler-25.02.0.tar.xz
@@ -360,13 +322,12 @@ modules:
     buildsystem: autotools
     config-opts:
       - --disable-warnings
+    post-install:
+      # Flatpak expects the icon to be under /app/share/icons
+      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png -t ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/
     sources:
       - type: archive
         url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-2.6.49.tar.gz
         sha256: a1da96eb23ed3a51e286803745df673379443043557b15c2a3b1e3ed1482b2b1
       - type: patch
         path: patches/denemo-2.6.49.patch
-    post-install:
-      # Flatpak expects the icon to be under /app/share/icons
-      - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
-
