@@ -231,6 +231,8 @@ modules:
 
   - name: portaudio
     buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     sources:
       - type: archive
         url: http://files.portaudio.com/archives/pa_stable_v190700_20210406.tgz
