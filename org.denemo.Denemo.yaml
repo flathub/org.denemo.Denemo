@@ -127,6 +127,8 @@ modules:
 
   - name: portaudio
     buildsystem: cmake-ninja
+    config-opts:
+      - -DCMAKE_POLICY_VERSION_MINIMUM=3.5
     cleanup:
       - /include
       - /lib/cmake
@@ -145,8 +147,8 @@ modules:
       - -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=/app/bin
     sources:
       - type: archive
-        url: https://github.com/PortMidi/portmidi/archive/refs/tags/v2.0.4.tar.gz
-        sha256: 64893e823ae146cabd3ad7f9a9a9c5332746abe7847c557b99b2577afa8a607c
+        url: https://github.com/PortMidi/portmidi/archive/refs/tags/v2.0.8.tar.gz
+        sha256: f21201d4cc233638d7bb6ee29ee6dece54f6c9c1aeb7989bc978001caaf2f666
     cleanup:
       - /bin
       - /include
