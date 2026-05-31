@@ -240,6 +240,11 @@ modules:
 
   - name: denemo
     buildsystem: autotools
+    # This env variable is needed only for git snapshots, where configure file is missing.
+    # When Denemo developers restart doing proper releases on ftp.gnu.org, this can be removed.
+    build-options:
+      env:
+        ACLOCAL_FLAGS: "-I /usr/share/gettext/m4"
     config-opts:
       - --disable-warnings
     sources:
