@@ -248,12 +248,11 @@ modules:
     config-opts:
       - --disable-warnings
     sources:
-      - type: archive
-        url: https://git.savannah.gnu.org/cgit/denemo.git/snapshot/denemo-2.6.49.tar.gz
-        sha256: a1da96eb23ed3a51e286803745df673379443043557b15c2a3b1e3ed1482b2b1
+      - type: git
+        url: https://https.git.savannah.gnu.org/git/denemo.git
+        commit: f7940eb7cc6827680c7b8642ae734cfdcbf48d2d
       - type: patch
-        path: patches/denemo-2.6.49.patch
+        path: patches/denemo-metainfo-release.patch
     post-install:
       # Flatpak expects the icon to be under /app/share/icons
       - mv ${FLATPAK_DEST}/share/pixmaps/org.denemo.Denemo.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/org.denemo.Denemo.png
-
