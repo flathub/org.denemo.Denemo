@@ -206,8 +206,8 @@ modules:
       - /share/man
     sources:
       - type: archive
-        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.5.4.tar.gz
-        sha256: 72f5720328fe44e2e5c67813885f0a6b4b004d048bd2eeeb0c0064074ebff530
+        url: https://github.com/FluidSynth/fluidsynth/archive/refs/tags/v2.6.0.tar.gz
+        sha256: 6d17570ea2086dd6fbcac995465773a6f316e689089b7fb7ba0b34c2ec6f680d
         x-checker-data:
           type: json
           url: https://api.github.com/repos/FluidSynth/fluidsynth/releases/latest
